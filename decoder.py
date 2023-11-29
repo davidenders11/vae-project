@@ -1,4 +1,5 @@
 import torch.nn as nn
+import encoder
 
 
 class Decoder(nn.Module):
@@ -77,5 +78,14 @@ class Decoder(nn.Module):
         return epsilon * standard + mu
 
     # def forward(self, input):
+    #     # I am not sure if this is the best place to be defining forward, maybe we could do it in the notebook. 
+    #     # Also do we want to take in the encoder params as parameters for forward as well?
+    
+    #     encoderObject = encoder.Encoder(in_dim, hidden_dims, latent_dim)
+    #     mu, var = encoderObject.encode(input)
+    #     sample = self.reparameterize(mu, var)
+    #     res = self.decode(sample)
+    #     return res
+
 
     # The forward function must then reparamterize (sample) from the encoded vector passed in and then pass those values into the upsampling network
