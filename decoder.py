@@ -6,7 +6,7 @@ import encoder
 class Decoder(nn.Module):
 
     """
-    Assumes that encoder_vector is of size latent_dim*2 for mu and var
+    Assumes that encoder_vector is of size latent_dim*2 for mu and log_var
     """
 
     def __init__(self, latent_dim, hidden_dims) -> None:
@@ -77,15 +77,15 @@ class Decoder(nn.Module):
         return res
 
     # Then we must make a function to sample from our encoder vector
-    def reparameterize(self, mu, var):
-        std = var
-        sample_term = torch.randn_like(var)
+    def reparameterize(self, mu, log_var):
+        std = torch.exp(0.5 * log_var) # explaining why we use log variance https://chat.openai.com/share/4a6594e7-11b9-44b8-bee2-62f8227e4fa4 
+        sample_term = torch.randn_like(log_var)
         return mu + std * sample_term
         # Sample values from the gaussians characterized by mu and var
         pass
 
-    def forward(self, mu, var):
-        res = self.reparameterize(mu, var)
+    def forward(self, mu, log_var):
+        res = self.reparameterize(mu, log_var)
         res = self.decode(res)
         return res
         
