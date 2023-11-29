@@ -12,13 +12,18 @@ class Decoder(nn.Module):
     def __init__(self, latent_dim, hidden_dims) -> None:
         super().__init__()
 
+        self.hidden_dims = hidden_dims
+
         # The output from encoding will be in a vector of size latent_dim X 1
         # Pass it through a linear layer and output dimension hidden_dims[-1]
         self.decode_input = []
         modules = []
 
         # hyperparameters
-        latent_dim_mult = 4
+
+        # This number must be a square
+        self.hidden_dim_mult = 4
+
         kernel_size = 3
         stride = 2
         padding = 1
@@ -27,12 +32,9 @@ class Decoder(nn.Module):
         # TODO: I think fc_1 and fc_2 maybe don't have to be class variables since they get passed into
         # decode_input which is already one? (I just made it one)
         self.latent_dim = latent_dim
-        self.fc_1 = nn.Linear(self.latent_dim, self.latent_dim * latent_dim_mult)
-        self.fc_2 = nn.Linear(
-            self.latent_dim * latent_dim_mult, self.latent_dim * latent_dim_mult
-        )
+        self.fc_1 = nn.Linear(self.latent_dim, self.hidden_dims[-1] * self.hidden_dim_mult)
+    
         self.decode_input.append(self.fc_1)
-        self.decode_input.append(self.fc_2)
 
         hidden_dims_reversed = reversed(hidden_dims)
 
@@ -71,6 +73,7 @@ class Decoder(nn.Module):
 
     def decode(self, input):
         res = self.decode_input(input)
+        res = res.view(self.hidden_dims[-1], int(self.hidden_dim_mult**(0.5)), int(self.hidden_dim_mult**(0.5)))
         # I don't think the output of decode_input will be able to fit into the input to decoder
         # so we will have to figure out the dims and  reshape it
         res = self.decoder(res)

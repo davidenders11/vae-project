@@ -4,6 +4,8 @@ import torch.nn.functional as F
 from . import encoder
 from . import decoder
 
+# Images from github are of size 178x218, we need to change hidden_dims to work for 64x64
+
 class Basic_VAE(nn.module):
 
     def __init__(self, in_dim, hidden_dims, latent_dim):
@@ -27,3 +29,6 @@ class Basic_VAE(nn.module):
         kld_loss *= kld_weight
 
         return img_loss + kld_loss
+
+hidden_dims = [16, 32, 64, 128]
+vae = Basic_VAE(64, )
