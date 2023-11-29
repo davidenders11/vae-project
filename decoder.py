@@ -1,3 +1,4 @@
+import torch
 import torch.nn as nn
 import encoder
 
@@ -65,6 +66,8 @@ class Decoder(nn.Module):
         modules.append(last_layer)
 
         self.decoder = nn.Sequential(*modules)
+    
+
 
     def decode(self, input):
         res = self.decode_input(input)
@@ -75,13 +78,17 @@ class Decoder(nn.Module):
 
     # Then we must make a function to sample from our encoder vector
     def reparameterize(self, mu, var):
-        standard = nn.exp(0.5 * var)
-        epsilon = nn.randn_like(standard)
-        return epsilon * standard + mu
+        std = var
+        sample_term = torch.randn_like(var)
+        return mu + std * sample_term
+        # Sample values from the gaussians characterized by mu and var
+        pass
 
-    # def forward(self, input):
-    #     # I am not sure if this is the best place to be defining forward, maybe we could do it in the notebook.
-    #     # Also do we want to take in the encoder params as parameters for forward as well?
+    def forward(self, mu, var):
+        res = self.reparameterize(mu, var)
+        res = self.decode(res)
+        return res
+        
 
     #     encoderObject = encoder.Encoder(in_dim, hidden_dims, latent_dim)
     #     mu, var = encoderObject.encode(input)
