@@ -1,9 +1,10 @@
+# Overhead
 .DS_Store
+__pycache__/
 
+# Dataset
 /data/*.jpg
 /data/*.jpeg
 /data/*.png
-
 *.png
-
 /data/cats
