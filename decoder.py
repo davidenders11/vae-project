@@ -11,29 +11,31 @@ class Decoder(nn.Module):
     def __init__(self, latent_dim, hidden_dims) -> None:
         super().__init__()
 
-        # First we must make the network to upsample from our encoding using nn.ConvTranspose2D
-        # The encoding will be in a vector of size latent_dim X 1, so we should pass it through a linear layer then put it in the of hidden_dims[-1]
-        decode_input = []
+        # The output from encoding will be in a vector of size latent_dim X 1
+        # Pass it through a linear layer and output dimension hidden_dims[-1]
+        self.decode_input = []
         modules = []
 
+        # hyperparameters
         latent_dim_mult = 4
         kernel_size = 3
         stride = 2
         padding = 1
         out_padding = 1
 
+        # TODO: I think fc_1 and fc_2 maybe don't have to be class variables since they get passed into
+        # decode_input which is already one? (I just made it one)
         self.latent_dim = latent_dim
         self.fc_1 = nn.Linear(self.latent_dim, self.latent_dim * latent_dim_mult)
         self.fc_2 = nn.Linear(
             self.latent_dim * latent_dim_mult, self.latent_dim * latent_dim_mult
         )
-
-        decode_input.append(self.fc_1)
-        decode_input.append(self.fc_2)
+        self.decode_input.append(self.fc_1)
+        self.decode_input.append(self.fc_2)
 
         hidden_dims_reversed = reversed(hidden_dims)
 
-        # Up sample data
+        # Construct decoder network to up-sample data
         for i in range(len(hidden_dims_reversed) - 1):
             layer = nn.Sequential(
                 nn.ConvTranspose2d(
@@ -78,14 +80,13 @@ class Decoder(nn.Module):
         return epsilon * standard + mu
 
     # def forward(self, input):
-    #     # I am not sure if this is the best place to be defining forward, maybe we could do it in the notebook. 
+    #     # I am not sure if this is the best place to be defining forward, maybe we could do it in the notebook.
     #     # Also do we want to take in the encoder params as parameters for forward as well?
-    
+
     #     encoderObject = encoder.Encoder(in_dim, hidden_dims, latent_dim)
     #     mu, var = encoderObject.encode(input)
     #     sample = self.reparameterize(mu, var)
     #     res = self.decode(sample)
     #     return res
-
 
     # The forward function must then reparamterize (sample) from the encoded vector passed in and then pass those values into the upsampling network
