@@ -1,5 +1,5 @@
 import torch.nn as nn
-import encoder
+from encoder import Encoder
 
 
 class Decoder(nn.Module):
@@ -11,9 +11,12 @@ class Decoder(nn.Module):
     def __init__(self, latent_dim, hidden_dims) -> None:
         super().__init__()
 
-        # The output from encoding will be in a vector of size latent_dim X 1
-        # Pass it through a linear layer and output dimension hidden_dims[-1]
+        # initialize class variables
+        self.latent_dim = latent_dim
+        self.hidden_dims = hidden_dims
         self.decode_input = []
+
+        # temp container for constructing layers
         modules = []
 
         # hyperparameters
@@ -23,16 +26,15 @@ class Decoder(nn.Module):
         padding = 1
         out_padding = 1
 
-        # TODO: I think fc_1 and fc_2 maybe don't have to be class variables since they get passed into
-        # decode_input which is already one? (I just made it one)
-        self.latent_dim = latent_dim
-        self.fc_1 = nn.Linear(self.latent_dim, self.latent_dim * latent_dim_mult)
-        self.fc_2 = nn.Linear(
+        # initialize ____ with _____ (not sure what this does lol)
+        fc_1 = nn.Linear(self.latent_dim, self.latent_dim * latent_dim_mult)
+        fc_2 = nn.Linear(
             self.latent_dim * latent_dim_mult, self.latent_dim * latent_dim_mult
         )
-        self.decode_input.append(self.fc_1)
-        self.decode_input.append(self.fc_2)
+        self.decode_input.append(fc_1)
+        self.decode_input.append(fc_2)
 
+        # hidden dims shared with encoder so need to be reversed for decoder
         hidden_dims_reversed = reversed(hidden_dims)
 
         # Construct decoder network to up-sample data
@@ -50,7 +52,7 @@ class Decoder(nn.Module):
             )
             modules.append(layer)
 
-        # Now we have to get the data in our previous format 64x64x3
+        # Now we have to get the data in our previous format 64x64x3 TODO: should this be 2D?
         last_layer = nn.Sequential(
             nn.Conv2d(
                 in_channels=hidden_dims_reversed[-1],
@@ -70,6 +72,7 @@ class Decoder(nn.Module):
         res = self.decode_input(input)
         # I don't think the output of decode_input will be able to fit into the input to decoder
         # so we will have to figure out the dims and  reshape it
+        # shouldn't fc_2 output_dims instead be equal to hidden_dims[-1]? that way it would fit
         res = self.decoder(res)
         return res
 
@@ -79,14 +82,15 @@ class Decoder(nn.Module):
         epsilon = nn.randn_like(standard)
         return epsilon * standard + mu
 
-    # def forward(self, input):
-    #     # I am not sure if this is the best place to be defining forward, maybe we could do it in the notebook.
-    #     # Also do we want to take in the encoder params as parameters for forward as well?
-
-    #     encoderObject = encoder.Encoder(in_dim, hidden_dims, latent_dim)
-    #     mu, var = encoderObject.encode(input)
-    #     sample = self.reparameterize(mu, var)
-    #     res = self.decode(sample)
-    #     return res
+    def forward(self, input):
+        #     # I am not sure if this is the best place to be defining forward, maybe we could do it in the notebook.
+        #     # Also do we want to take in the encoder params as parameters for forward as well?
+        # I think to get in_dim we have to flatten the 64x64x3 to 64x192 or something like that - in_dim should be 2d i believe
+        # hidden_dims and latent_dim should be a hyperparameter chosen in the parent class VariationalAutoEncoder
+        encoder = Encoder(in_dim, hidden_dims, self.latent_dim)
+        mu, var = encoder.encode(input)
+        sample = self.reparameterize(mu, var)
+        res = self.decode(sample)
+        return res
 
     # The forward function must then reparamterize (sample) from the encoded vector passed in and then pass those values into the upsampling network
