@@ -55,4 +55,7 @@ class Encoder(nn.Module):
 
         return (mu, var)
     
+    def forward(self, input):
+        return self.encode(input)
+    
         
