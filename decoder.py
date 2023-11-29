@@ -72,8 +72,9 @@ class Decoder(nn.Module):
 
     # Then we must make a function to sample from our encoder vector
     def reparameterize(self, mu, var):
-        # Sample values from the gaussians characterized by mu and var
-        pass
+        standard = nn.exp(0.5 * var)
+        epsilon = nn.randn_like(standard)
+        return epsilon * standard + mu
 
     # def forward(self, input):
 

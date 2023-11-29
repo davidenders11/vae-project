@@ -52,8 +52,8 @@ class Encoder(nn.Module):
 
         encoded = self.encoder(input)
         mu = self.fc_mu(encoded)
-        sigma = self.fc_var(encoded)
+        var = self.fc_var(encoded)
 
-        return (mu,sigma)
+        return (mu,var)
     
         
