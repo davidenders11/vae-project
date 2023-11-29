@@ -81,8 +81,6 @@ class Decoder(nn.Module):
         return epsilon * standard + mu
 
     def forward(self, input):
-        # I am not sure if this is the best place to be defining forward, maybe we could do it in the notebook.
-        # Also do we want to take in the encoder params as parameters for forward as well?
         # I think to get in_dim we have to flatten the 64x64x3 to 64x192 or something like that - in_dim should be 2d i believe
         # hidden_dims and latent_dim should be a hyperparameter chosen in the parent class VariationalAutoEncoder
         encoder = Encoder(input.shape, self.hidden_dims, self.latent_dim)

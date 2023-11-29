@@ -1,5 +1,6 @@
 import torch.nn as nn
 
+
 class Encoder(nn.Module):
 
     """
@@ -9,41 +10,49 @@ class Encoder(nn.Module):
 
     However, this module should output a vector thats the size of latent_dim
     """
+
     def __init__(self, in_dim, hidden_dims, latent_dim) -> None:
         super().__init__()
-        kernel_size=5
-        stride=2
-        padding=1
-
+        # hyperparameters
+        kernel_size = 5
+        stride = 2
+        padding = 1
         conv_to_fc_mult = 3
         latent_dim_mult = 3
 
+        # temp container for layer construction
         modules = []
 
+        # build encoder layers with dimensions in hidden_dims
         for i in range(len(hidden_dims)):
             out_dim = hidden_dims[i]
             layer = nn.Sequential(
-                nn.Conv2d(in_channels=in_dim,
-                          out_channels=out_dim,
-                          kernel_size=kernel_size, 
-                          stride=stride, 
-                          padding=padding),
+                nn.Conv2d(
+                    in_channels=in_dim,
+                    out_channels=out_dim,
+                    kernel_size=kernel_size,
+                    stride=stride,
+                    padding=padding,
+                ),
                 nn.BatchNorm2d(out_dim),
-                nn.LeakyReLU()
+                nn.LeakyReLU(),
             )
             modules.append(layer)
             in_dim = out_dim
-    
+
         self.encoder = nn.Sequential(*modules)
 
         # We might need to find a way to force the gaussians to have a mean of 0
         # and a std of 1
+
+        # create layer for finding mu vector
         self.fc_mu = nn.Sequential(
-            nn.Linear(hidden_dims[-1]*conv_to_fc_mult, latent_dim)
+            nn.Linear(hidden_dims[-1] * conv_to_fc_mult, latent_dim)
         )
 
+        # create layer for finding sigma vector
         self.fc_var = nn.Sequential(
-            nn.Linear(hidden_dims[-1]*conv_to_fc_mult, latent_dim)
+            nn.Linear(hidden_dims[-1] * conv_to_fc_mult, latent_dim)
         )
 
     def encode(self, input):
@@ -55,5 +64,3 @@ class Encoder(nn.Module):
         var = self.fc_var(encoded)
 
         return (mu, var)
-    
-        
