@@ -6,14 +6,12 @@ from encoder import Encoder
 class Decoder(nn.Module):
 
     """
-    Assumes that encoder_vector is of size latent_dim*2 for mu and var
+    Assumes that encoder_vector is of size latent_dim*2 for mu and log_var
     """
 
     def __init__(self, latent_dim, hidden_dims) -> None:
         super().__init__()
 
-        # initialize class variables
-        self.latent_dim = latent_dim
         # initialize class variables
         self.latent_dim = latent_dim
         self.hidden_dims = hidden_dims
@@ -23,17 +21,16 @@ class Decoder(nn.Module):
         modules = []
 
         # hyperparameters
-        latent_dim_mult = 4
+        self.hidden_dim_mult = 4 # This number must be a square
         kernel_size = 3
         stride = 2
         padding = 1
         out_padding = 1
 
-        # initialize ____ with _____ (not sure what this does lol)
-        fc_1 = nn.Linear(self.latent_dim, self.latent_dim * latent_dim_mult)
-        fc_2 = nn.Linear(self.latent_dim * latent_dim_mult, self.hidden_dims[-1])
-        self.decode_input.append(fc_1)
-        self.decode_input.append(fc_2)
+        # construct the first layer of the decoder network
+        self.latent_dim = latent_dim
+        fc_1 = nn.Linear(self.latent_dim, self.hidden_dims[-1] * self.hidden_dim_mult)
+        self.decode_input.append(self.fc_1)
 
         # hidden dims shared with encoder so need to be reversed for decoder
         hidden_dims_reversed = reversed(self.hidden_dims)
@@ -68,14 +65,12 @@ class Decoder(nn.Module):
         modules.append(last_layer)
 
         self.decoder = nn.Sequential(*modules)
+    
+
 
     def decode(self, input):
         res = self.decode_input(input)
-        res = res.view(
-            self.hidden_dims[-1],
-            int(self.hidden_dim_mult ** (0.5)),
-            int(self.hidden_dim_mult ** (0.5)),
-        )
+        res = res.view(self.hidden_dims[-1], int(self.hidden_dim_mult**(0.5)), int(self.hidden_dim_mult**(0.5)))
         # I don't think the output of decode_input will be able to fit into the input to decoder
         # so we will have to figure out the dims and  reshape it
         # shouldn't fc_2 output_dims instead be equal to hidden_dims[-1]? that way it would fit
@@ -84,9 +79,7 @@ class Decoder(nn.Module):
 
     # Then we must make a function to sample from our encoder vector
     def reparameterize(self, mu, log_var):
-        std = torch.exp(
-            0.5 * log_var
-        )  # explaining why we use log variance https://chat.openai.com/share/4a6594e7-11b9-44b8-bee2-62f8227e4fa4
+        std = torch.exp(0.5 * log_var) # explaining why we use log variance https://chat.openai.com/share/4a6594e7-11b9-44b8-bee2-62f8227e4fa4 
         sample_term = torch.randn_like(log_var)
         return mu + std * sample_term
         # Sample values from the gaussians characterized by mu and var
@@ -96,6 +89,7 @@ class Decoder(nn.Module):
         res = self.reparameterize(mu, log_var)
         res = self.decode(res)
         return res
+        
 
     #     encoderObject = encoder.Encoder(in_dim, hidden_dims, latent_dim)
     #     mu, var = encoderObject.encode(input)

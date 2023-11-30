@@ -58,7 +58,6 @@ class Encoder(nn.Module):
     def encode(self, input):
         # Transforms the input into a latent distribution
         # Returns a tuple of mu vector and sigma vector
-
         encoded = self.encoder(input)
         mu = self.fc_mu(encoded)
         var = self.fc_var(encoded)
