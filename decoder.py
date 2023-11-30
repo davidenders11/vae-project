@@ -1,3 +1,4 @@
+import torch
 import torch.nn as nn
 from encoder import Encoder
 
@@ -11,6 +12,8 @@ class Decoder(nn.Module):
     def __init__(self, latent_dim, hidden_dims) -> None:
         super().__init__()
 
+        # initialize class variables
+        self.latent_dim = latent_dim
         # initialize class variables
         self.latent_dim = latent_dim
         self.hidden_dims = hidden_dims
@@ -68,6 +71,11 @@ class Decoder(nn.Module):
 
     def decode(self, input):
         res = self.decode_input(input)
+        res = res.view(
+            self.hidden_dims[-1],
+            int(self.hidden_dim_mult ** (0.5)),
+            int(self.hidden_dim_mult ** (0.5)),
+        )
         # I don't think the output of decode_input will be able to fit into the input to decoder
         # so we will have to figure out the dims and  reshape it
         # shouldn't fc_2 output_dims instead be equal to hidden_dims[-1]? that way it would fit
@@ -75,16 +83,24 @@ class Decoder(nn.Module):
         return res
 
     # Then we must make a function to sample from our encoder vector
-    def reparameterize(self, mu, var):
-        standard = nn.exp(0.5 * var)
-        epsilon = nn.randn_like(standard)
-        return epsilon * standard + mu
+    def reparameterize(self, mu, log_var):
+        std = torch.exp(
+            0.5 * log_var
+        )  # explaining why we use log variance https://chat.openai.com/share/4a6594e7-11b9-44b8-bee2-62f8227e4fa4
+        sample_term = torch.randn_like(log_var)
+        return mu + std * sample_term
+        # Sample values from the gaussians characterized by mu and var
+        pass
 
-    def forward(self, input):
-        # I think to get in_dim we have to flatten the 64x64x3 to 64x192 or something like that - in_dim should be 2d i believe
-        # hidden_dims and latent_dim should be a hyperparameter chosen in the parent class VariationalAutoEncoder
-        encoder = Encoder(input.shape, self.hidden_dims, self.latent_dim)
-        mu, var = encoder.encode(input)
-        sample = self.reparameterize(mu, var)
-        res = self.decode(sample)
+    def forward(self, mu, log_var):
+        res = self.reparameterize(mu, log_var)
+        res = self.decode(res)
         return res
+
+    #     encoderObject = encoder.Encoder(in_dim, hidden_dims, latent_dim)
+    #     mu, var = encoderObject.encode(input)
+    #     sample = self.reparameterize(mu, var)
+    #     res = self.decode(sample)
+    #     return res
+
+    # The forward function must then reparamterize (sample) from the encoded vector passed in and then pass those values into the upsampling network
