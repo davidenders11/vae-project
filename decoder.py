@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-import encoder
+from encoder import Encoder
 
 
 class Decoder(nn.Module):
@@ -12,31 +12,28 @@ class Decoder(nn.Module):
     def __init__(self, latent_dim, hidden_dims) -> None:
         super().__init__()
 
+        # initialize class variables
+        self.latent_dim = latent_dim
         self.hidden_dims = hidden_dims
-
-        # The output from encoding will be in a vector of size latent_dim X 1
-        # Pass it through a linear layer and output dimension hidden_dims[-1]
         self.decode_input = []
+
+        # temp container for constructing layers
         modules = []
 
         # hyperparameters
-
-        # This number must be a square
-        self.hidden_dim_mult = 4
-
+        self.hidden_dim_mult = 4 # This number must be a square
         kernel_size = 3
         stride = 2
         padding = 1
         out_padding = 1
 
-        # TODO: I think fc_1 and fc_2 maybe don't have to be class variables since they get passed into
-        # decode_input which is already one? (I just made it one)
+        # construct the first layer of the decoder network
         self.latent_dim = latent_dim
-        self.fc_1 = nn.Linear(self.latent_dim, self.hidden_dims[-1] * self.hidden_dim_mult)
-    
+        fc_1 = nn.Linear(self.latent_dim, self.hidden_dims[-1] * self.hidden_dim_mult)
         self.decode_input.append(self.fc_1)
 
-        hidden_dims_reversed = reversed(hidden_dims)
+        # hidden dims shared with encoder so need to be reversed for decoder
+        hidden_dims_reversed = reversed(self.hidden_dims)
 
         # Construct decoder network to up-sample data
         for i in range(len(hidden_dims_reversed) - 1):
@@ -53,7 +50,7 @@ class Decoder(nn.Module):
             )
             modules.append(layer)
 
-        # Now we have to get the data in our previous format 64x64x3
+        # Now we have to get the data in our previous format 64x64x3 TODO: should dimensions be 2D?
         last_layer = nn.Sequential(
             nn.Conv2d(
                 in_channels=hidden_dims_reversed[-1],
@@ -76,6 +73,7 @@ class Decoder(nn.Module):
         res = res.view(self.hidden_dims[-1], int(self.hidden_dim_mult**(0.5)), int(self.hidden_dim_mult**(0.5)))
         # I don't think the output of decode_input will be able to fit into the input to decoder
         # so we will have to figure out the dims and  reshape it
+        # shouldn't fc_2 output_dims instead be equal to hidden_dims[-1]? that way it would fit
         res = self.decoder(res)
         return res
 
