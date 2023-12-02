@@ -61,7 +61,6 @@ class Encoder(nn.Module):
         encoded = self.encoder(input)
         mu = self.fc_mu(encoded)
         var = self.fc_var(encoded)
-
         return (mu, var)
 
     def forward(self, input):

@@ -7,7 +7,7 @@ from decoder import Decoder
 # Images from github are of size 178x218, we need to change hidden_dims to work for 64x64
 
 
-class Basic_VAE(nn.module):
+class Basic_VAE(nn.Module):
     def __init__(self, in_dim, hidden_dims, latent_dim):
         super().__init__()
         self.encoder = Encoder(in_dim, hidden_dims, latent_dim)
