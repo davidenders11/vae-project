@@ -23,7 +23,9 @@ class Basic_VAE(nn.Module):
     # normal by using kl divergence
     def loss_function(self, reconstructed_img, input_img, mu, log_var, kld_weight=2):
         img_loss = F.mse_loss(reconstructed_img, input_img)
-        kld_loss = 1  # gotta figure out how to compute this
+        # article on calculating kl divergence between 2 gaussians:
+        # https://medium.com/@outerrencedl/variational-autoencoder-and-a-bit-kl-divergence-with-pytorch-ce04fd55d0d7 
+        kld_loss = torch.mean(torch.sum((0-log_var) +  (log_var.exp()-mu**2)/2 - 1/2))
         kld_loss *= kld_weight
 
         return img_loss + kld_loss

@@ -62,8 +62,16 @@ class Encoder(nn.Module):
         # Returns a tuple of mu vector and sigma vector
         encoded = self.encoder(input)
         mu = self.fc_mu(encoded)
+<<<<<<< HEAD
         var = self.fc_var(encoded)
         return (mu, var)
 
     def forward(self, input):
         return self.encode(input)
+=======
+        log_var = self.fc_var(encoded)
+
+        return (mu, log_var)
+    
+        
+>>>>>>> 198ac5a (idk what changes these are)
