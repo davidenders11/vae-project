@@ -27,6 +27,8 @@ class Encoder(nn.Module):
         for i in range(len(hidden_dims)):
             out_dim = hidden_dims[i]
             layer = nn.Sequential(
+                # Conv2d takes a 4d tensor as input, NxCxHxW, where N is the batch size,
+                # C is the number of channels, and H and W are the height and width of the data
                 nn.Conv2d(
                     in_channels=in_dim,
                     out_channels=out_dim,
