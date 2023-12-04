@@ -39,9 +39,7 @@ class Decoder(nn.Module):
         for i in range(len(hidden_dims_reversed) - 1):
             layer = nn.Sequential(
                 nn.ConvTranspose2d(
-                    in_channels=hidden_dims_reversed[
-                        i
-                    ],  # TODO: why not multiply by hidden_dim_mult?
+                    in_channels=hidden_dims_reversed[i],  # TODO: why not multiply by hidden_dim_mult?
                     out_channels=hidden_dims_reversed[i + 1],
                     kernel_size=kernel_size,
                     stride=stride,
