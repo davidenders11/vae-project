@@ -25,7 +25,7 @@ class Basic_VAE(nn.Module):
         img_loss = F.mse_loss(reconstructed_img, input_img)
         # article on calculating kl divergence between 2 gaussians:
         # https://medium.com/@outerrencedl/variational-autoencoder-and-a-bit-kl-divergence-with-pytorch-ce04fd55d0d7 
-        kld_loss = torch.mean(torch.sum(-log_var +  (log_var.exp()**2-mu**2)/2 - 1/2))
+        kld_loss = torch.mean(torch.sum(-log_var +  (log_var.exp()**2+mu**2)/2 - 1/2))
         kld_loss *= kld_weight
 
         return img_loss + kld_loss
