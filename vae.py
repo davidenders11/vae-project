@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 from encoder import Encoder
 from decoder import Decoder
 
@@ -21,13 +20,3 @@ class Basic_VAE(nn.Module):
     # The loss must include a measure of the difference between the input image and reconstructed image
     # as well as a measure of the difference between the normals we get from mu and log_var and the standard
     # normal by using kl divergence
-    def loss_function(self, reconstructed_img, input_img, mu, log_var, kld_weight=2):
-        img_loss = F.mse_loss(reconstructed_img, input_img)
-        # article on calculating kl divergence between 2 gaussians:
-        # https://medium.com/@outerrencedl/variational-autoencoder-and-a-bit-kl-divergence-with-pytorch-ce04fd55d0d7
-        kld_loss = torch.mean(
-            torch.sum(-log_var + (log_var.exp() ** 2 - mu**2) / 2 - 1 / 2)
-        )
-        kld_loss *= kld_weight
-
-        return img_loss + kld_loss
