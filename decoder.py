@@ -31,6 +31,7 @@ class Decoder(nn.Module):
         self.latent_dim = latent_dim
         fc_1 = nn.Linear(self.latent_dim, self.hidden_dims[-1] * self.hidden_dim_mult)
         self.decode_input.append(fc_1)
+        self.decode_input == nn.Sequential(*self.decode_input)
 
         # hidden dims shared with encoder so need to be reversed for decoder
         hidden_dims_reversed = reversed(self.hidden_dims)
@@ -39,7 +40,7 @@ class Decoder(nn.Module):
         for i in range(len(hidden_dims_reversed) - 1):
             layer = nn.Sequential(
                 nn.ConvTranspose2d(
-                    in_channels=hidden_dims_reversed[i],  # TODO: why not multiply by hidden_dim_mult?
+                    in_channels=hidden_dims_reversed[i],
                     out_channels=hidden_dims_reversed[i + 1],
                     kernel_size=kernel_size,
                     stride=stride,
@@ -66,7 +67,6 @@ class Decoder(nn.Module):
         self.decoder = nn.Sequential(*modules)
 
     def decode(self, input):
-        # TODO: decode_input is a list, not a function, will this work? do we need to make a nn.Sequential object instead?
         res = self.decode_input(input)
         res = res.view(
             self.hidden_dims[-1],
