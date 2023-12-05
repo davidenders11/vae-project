@@ -15,7 +15,7 @@ class Basic_VAE(nn.Module):
     def forward(self, input_img):
         mu, log_var = self.encoder(input_img)
         reconstructed_img = self.decoder(mu, log_var)
-        return reconstructed_img
+        return [reconstructed_img, mu, log_var]
 
     # The loss must include a measure of the difference between the input image and reconstructed image
     # as well as a measure of the difference between the normals we get from mu and log_var and the standard
