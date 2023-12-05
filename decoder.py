@@ -34,7 +34,9 @@ class Decoder(nn.Module):
         self.decode_input == nn.Sequential(*self.decode_input)
 
         # hidden dims shared with encoder so need to be reversed for decoder
-        hidden_dims_reversed = reversed(self.hidden_dims)
+        hidden_dims_reversed = list(self.hidden_dims)
+        hidden_dims_reversed.reverse()
+        print(hidden_dims_reversed)
 
         # Construct decoder network to up-sample data
         for i in range(len(hidden_dims_reversed) - 1):
