@@ -1,3 +1,4 @@
+import torch
 import torch.nn as nn
 
 
@@ -17,7 +18,8 @@ class Encoder(nn.Module):
         kernel_size = 5
         stride = 2
         padding = 1
-        conv_to_fc_mult = 3
+        # This number must equal HxW of the final output convolution from the encoded layer, for example, ours is 128x3x3 where 3x3 is HxW and 9 = 3*3
+        conv_to_fc_mult = 9
         latent_dim_mult = 3
 
         # temp container for layer construction
@@ -57,13 +59,16 @@ class Encoder(nn.Module):
             nn.Linear(hidden_dims[-1] * conv_to_fc_mult, latent_dim)
         )
 
-    def encode(self, input):
-        # Transforms the input into a latent distribution
+    def encode(self, input_img):
+        # Transforms the input_img into a latent distribution
         # Returns a tuple of mu vector and sigma vector
-        encoded = self.encoder(input)
+        encoded = self.encoder(input_img)
+        print("encoded.shape:", encoded.shape)
+        encoded = torch.flatten(encoded, start_dim=1)
+        print("encoded.shape after flatten:", encoded.shape)
         mu = self.fc_mu(encoded)
         var = self.fc_var(encoded)
         return (mu, var)
 
-    def forward(self, input):
-        return self.encode(input)
+    def forward(self, input_img):
+        return self.encode(input_img)
