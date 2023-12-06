@@ -15,7 +15,6 @@ class Decoder(nn.Module):
         # initialize class variables
         self.latent_dim = latent_dim
         self.hidden_dims = hidden_dims
-        self.decode_input = []
 
         # temp container for constructing layers
         modules = []
@@ -30,8 +29,11 @@ class Decoder(nn.Module):
         # construct the first layer of the decoder network
         self.latent_dim = latent_dim
         fc_1 = nn.Linear(self.latent_dim, self.hidden_dims[-1] * self.hidden_dim_mult)
-        self.decode_input.append(fc_1)
-        self.decode_input == nn.Sequential(*self.decode_input)
+
+        decode_input_layers = []
+        decode_input_layers.append(fc_1)
+
+        self.decode_input = nn.Sequential(*decode_input_layers)
 
         # hidden dims shared with encoder so need to be reversed for decoder
         hidden_dims_reversed = list(self.hidden_dims)
@@ -71,6 +73,7 @@ class Decoder(nn.Module):
     def decode(self, input):
         res = self.decode_input(input)
         res = res.view(
+            -1, # this -1 is for the batchsize, so the new result is batch size x depth x H x W
             self.hidden_dims[-1],
             int(self.hidden_dim_mult ** (0.5)),
             int(self.hidden_dim_mult ** (0.5)),
