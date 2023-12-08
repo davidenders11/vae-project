@@ -40,6 +40,8 @@ class Decoder(nn.Module):
         hidden_dims_reversed.reverse()
         print(hidden_dims_reversed)
 
+        # either a larger stride, more up-sampling layers, or larger latent dim mult is needed to get to 64x64
+        # somehow something isn't symmetric between encoder and decoder, need to check why there isn't the same amount of upsampling as downsampling
         # Construct decoder network to up-sample data
         for i in range(len(hidden_dims_reversed) - 1):
             layer = nn.Sequential(
@@ -73,7 +75,7 @@ class Decoder(nn.Module):
     def decode(self, input):
         res = self.decode_input(input)
         res = res.view(
-            -1, # this -1 is for the batchsize, so the new result is batch size x depth x H x W
+            -1,  # this -1 is for the batchsize, so the new result is batch size x depth x H x W
             self.hidden_dims[-1],
             int(self.hidden_dim_mult ** (0.5)),
             int(self.hidden_dim_mult ** (0.5)),
