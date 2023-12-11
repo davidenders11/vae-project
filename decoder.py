@@ -37,7 +37,6 @@ class Decoder(nn.Module):
         # hidden dims shared with encoder so need to be reversed for decoder
         hidden_dims_reversed = list(self.hidden_dims)
         hidden_dims_reversed.reverse()
-        print(hidden_dims_reversed)
 
         # either a larger stride, more up-sampling layers, or larger latent dim mult is needed to get to 64x64
         # somehow something isn't symmetric between encoder and decoder, need to check why there isn't the same amount of upsampling as downsampling
@@ -58,15 +57,23 @@ class Decoder(nn.Module):
 
         modules.append(
             nn.ConvTranspose2d(
-                hidden_dims_reversed[-1], hidden_dims_reversed[-1],
-                kernel_size=3, stride=2, padding=1, output_padding=1
+                hidden_dims_reversed[-1],
+                hidden_dims_reversed[-1],
+                kernel_size=3,
+                stride=2,
+                padding=1,
+                output_padding=1,
             )
         )
         modules.append(nn.BatchNorm2d(hidden_dims_reversed[-1]))
         modules.append(
             nn.ConvTranspose2d(
-                hidden_dims_reversed[-1], hidden_dims_reversed[-1],
-                kernel_size=3, stride=2, padding=1, output_padding=1
+                hidden_dims_reversed[-1],
+                hidden_dims_reversed[-1],
+                kernel_size=3,
+                stride=2,
+                padding=1,
+                output_padding=1,
             )
         )
         modules.append(nn.BatchNorm2d(hidden_dims_reversed[-1]))
@@ -77,7 +84,7 @@ class Decoder(nn.Module):
                 out_channels=3,
                 kernel_size=3,
                 stride=2,
-                padding=1
+                padding=1,
             ),
             nn.Tanh(),
         )

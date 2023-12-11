@@ -63,9 +63,7 @@ class Encoder(nn.Module):
         # Transforms the input_img into a latent distribution
         # Returns a tuple of mu vector and sigma vector
         encoded = self.encoder(input_img)
-        print("encoded.shape:", encoded.shape)
         encoded = torch.flatten(encoded, start_dim=1)
-        print("encoded.shape after flatten:", encoded.shape)
         mu = self.fc_mu(encoded)
         var = self.fc_var(encoded)
         return (mu, var)
