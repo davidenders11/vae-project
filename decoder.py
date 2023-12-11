@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn
-from encoder import Encoder
 
 
 class Decoder(nn.Module):
@@ -20,7 +19,7 @@ class Decoder(nn.Module):
         modules = []
 
         # hyperparameters
-        self.hidden_dim_mult = 4  # This number must be a square
+        self.hidden_dim_mult = 16  # This number must be a square
         kernel_size = 3
         stride = 2
         padding = 1
@@ -57,13 +56,28 @@ class Decoder(nn.Module):
             )
             modules.append(layer)
 
+        modules.append(
+            nn.ConvTranspose2d(
+                hidden_dims_reversed[-1], hidden_dims_reversed[-1],
+                kernel_size=3, stride=2, padding=1, output_padding=1
+            )
+        )
+        modules.append(nn.BatchNorm2d(hidden_dims_reversed[-1]))
+        modules.append(
+            nn.ConvTranspose2d(
+                hidden_dims_reversed[-1], hidden_dims_reversed[-1],
+                kernel_size=3, stride=2, padding=1, output_padding=1
+            )
+        )
+        modules.append(nn.BatchNorm2d(hidden_dims_reversed[-1]))
+
         last_layer = nn.Sequential(
             nn.Conv2d(
                 in_channels=hidden_dims_reversed[-1],
                 out_channels=3,
-                kernel_size=kernel_size,
-                stride=stride,
-                padding=padding,
+                kernel_size=3,
+                stride=2,
+                padding=1
             ),
             nn.Tanh(),
         )
