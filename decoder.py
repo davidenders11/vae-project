@@ -55,7 +55,9 @@ class Decoder(nn.Module):
             )
             modules.append(layer)
 
-        last_layer = nn.Sequential(
+        self.decoder = nn.Sequential(*modules)
+
+        self.last_layer = nn.Sequential(
             nn.ConvTranspose2d(hidden_dims_reversed[-1],
                 hidden_dims_reversed[-1],
                 kernel_size=3,
@@ -73,10 +75,6 @@ class Decoder(nn.Module):
             nn.Tanh(),
         )
 
-        modules.append(last_layer)
-
-        self.decoder = nn.Sequential(*modules)
-
     def decode(self, input):
         res = self.decode_input(input)
         res = res.view(
@@ -86,6 +84,7 @@ class Decoder(nn.Module):
             int(self.hidden_dim_mult ** (0.5)),
         )
         res = self.decoder(res)
+        res = self.last_layer(res)
         return res
 
     # Then we must make a function to sample from our encoder vector
