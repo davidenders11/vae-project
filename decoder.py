@@ -109,9 +109,8 @@ class Decoder(nn.Module):
     def reparameterize(self, mu, log_var):
         std = torch.exp(0.5 * log_var)
         sample_term = torch.randn_like(log_var)
-        return mu + std * sample_term
         # Sample values from the gaussians characterized by mu and var
-        pass
+        return mu + std * sample_term
 
     # The forward function must then reparamterize (sample) from the encoded vector
     # passed in and then pass those values into the upsampling network
