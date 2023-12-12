@@ -26,7 +26,6 @@ class Decoder(nn.Module):
         out_padding = 1
 
         # construct the first layer of the decoder network
-        self.latent_dim = latent_dim
         fc_1 = nn.Linear(self.latent_dim, self.hidden_dims[-1] * self.hidden_dim_mult)
 
         decode_input_layers = []
@@ -56,36 +55,20 @@ class Decoder(nn.Module):
             )
             modules.append(layer)
 
-        modules.append(
-            nn.ConvTranspose2d(
-                hidden_dims_reversed[-1],
-                hidden_dims_reversed[-1],
-                kernel_size=3,
-                stride=2,
-                padding=1,
-                output_padding=1,
-            )
-        )
-        modules.append(nn.BatchNorm2d(hidden_dims_reversed[-1]))
-        modules.append(
-            nn.ConvTranspose2d(
-                hidden_dims_reversed[-1],
-                hidden_dims_reversed[-1],
-                kernel_size=3,
-                stride=2,
-                padding=1,
-                output_padding=1,
-            )
-        )
-        modules.append(nn.BatchNorm2d(hidden_dims_reversed[-1]))
-
         last_layer = nn.Sequential(
+            nn.ConvTranspose2d(hidden_dims_reversed[-1],
+                hidden_dims_reversed[-1],
+                kernel_size=3,
+                stride=2,
+                padding=1,
+                output_padding=1),
+            nn.BatchNorm2d(hidden_dims_reversed[-1]),
+            nn.LeakyReLU(),
             nn.Conv2d(
                 in_channels=hidden_dims_reversed[-1],
                 out_channels=3,
-                kernel_size=3,
-                stride=2,
-                padding=1,
+                kernel_size=kernel_size,
+                padding=padding,
             ),
             nn.Tanh(),
         )

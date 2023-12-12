@@ -20,8 +20,7 @@ class Encoder(nn.Module):
         padding = 1
         # This number must equal HxW of the final output convolution from the encoded layer, for example, ours is 128x3x3 where 3x3 is HxW and 9 = 3*3
         conv_to_fc_mult = 9
-        latent_dim_mult = 3
-
+        
         # temp container for layer construction
         modules = []
 
