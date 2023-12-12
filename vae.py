@@ -27,6 +27,3 @@ class Basic_VAE(nn.Module):
         print(normal_input.shape)
         sampled_img = self.decoder.decode(normal_input)
         return sampled_img
-    # The loss must include a measure of the difference between the input image and reconstructed image
-    # as well as a measure of the difference between the normals we get from mu and log_var and the standard
-    # normal by using kl divergence
